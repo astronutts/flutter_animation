@@ -17,8 +17,16 @@ class _ExplicitAnimationState extends State<ExplicitAnimation>
     duration: const Duration(
       seconds: 2,
     ),
-  )..addListener(() {
-      setState(() {});
+  )
+    ..addListener(() {
+      _value.value = _animationController.value;
+    })
+    ..addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _animationController.reverse();
+      } else if (status == AnimationStatus.dismissed) {
+        _animationController.forward();
+      }
     });
 
   @override
@@ -29,9 +37,8 @@ class _ExplicitAnimationState extends State<ExplicitAnimation>
     Timer.periodic(
         const Duration(
           milliseconds: 500,
-        ), (timer) {
-      print(_animationController.value);
-    });
+        ),
+        (timer) {});
   }
 
   void _play() {
@@ -46,6 +53,13 @@ class _ExplicitAnimationState extends State<ExplicitAnimation>
     _animationController.reverse();
   }
 
+  final ValueNotifier<double> _value = ValueNotifier(0.0);
+  void _onChanged(double value) {
+    _value.value = 0;
+    _animationController.value = value;
+    //_animationController.animateTo(value);
+  }
+
   late final Animation<Decoration> _decoration = DecorationTween(
     begin: BoxDecoration(
       color: Colors.amber,
@@ -53,30 +67,47 @@ class _ExplicitAnimationState extends State<ExplicitAnimation>
     ),
     end: BoxDecoration(
       color: Colors.red,
-      borderRadius: BorderRadius.circular(200),
+      borderRadius: BorderRadius.circular(40),
     ),
   ).animate(_animationController);
 
   late final Animation<double> _rotation = Tween(
     begin: 0.0,
-    end: 2.0,
-  ).animate(_animationController);
+    end: 0.5,
+  ).animate(_curve);
 
   late final Animation<double> _scale = Tween(
     begin: 1.0,
-    end: 2.0,
-  ).animate(_animationController);
+    end: 1.5,
+  ).animate(_curve);
 
   late final Animation<Offset> _Offset = Tween(
     begin: Offset.zero,
-    end: const Offset(0, 0.5),
-  ).animate(_animationController);
+    end: const Offset(0, 0),
+  ).animate(_curve);
+
+  late final CurvedAnimation _curve =
+      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut);
 
   @override
   void dispose() {
     // TODO: implement dispose
     super.dispose();
     _animationController.dispose();
+  }
+
+  bool _looping = false;
+  void _toggleLooping() {
+    if (_looping) {
+      _animationController.stop();
+    } else {
+      _animationController.repeat(
+        reverse: true,
+      );
+    }
+    setState(() {
+      _looping = !_looping;
+    });
   }
 
   @override
@@ -132,7 +163,25 @@ class _ExplicitAnimationState extends State<ExplicitAnimation>
                   ),
                 ),
               ],
-            )
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            ValueListenableBuilder(
+              valueListenable: _value,
+              builder: (context, value, child) {
+                return Slider(value: value, onChanged: _onChanged);
+              },
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            ElevatedButton(
+              onPressed: _toggleLooping,
+              child: const Text(
+                '무한버튼',
+              ),
+            ),
           ],
         ),
       ),
