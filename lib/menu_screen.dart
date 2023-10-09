@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animation/implicit_animation_screen.dart';
 import 'package:flutter_animation/moving_animation.dart';
+import 'package:flutter_animation/swiping_cards_screen.dart';
 
 import 'explicit_animation_screen.dart';
 
@@ -66,6 +67,20 @@ class MenuScreen extends StatelessWidget {
               },
               child: const Text(
                 "Explicit Animation",
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _goScreen(
+                  context,
+                  const SwipingCardsScreen(),
+                );
+              },
+              child: const Text(
+                "Swiping Cards Animation",
               ),
             ),
           ],
