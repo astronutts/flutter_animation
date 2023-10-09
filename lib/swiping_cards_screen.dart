@@ -42,9 +42,21 @@ class _SwipingCardsScreenState extends State<SwipingCardsScreen>
     final bound = size.width - 100;
     if (_animationController.value.abs() >= bound) {
       if (_animationController.value.isNegative) {
-        _animationController.animateTo((size.width + 100) * -1);
+        _animationController
+            .animateTo((size.width + 100) * -1)
+            .whenComplete(() {
+          _animationController.value = 0;
+          setState(() {
+            _index = _index == 5 ? 1 : _index + 1;
+          });
+        });
       } else {
-        _animationController.animateTo(size.width + 100);
+        _animationController.animateTo(size.width + 100).whenComplete(() {
+          _animationController.value = 0;
+          setState(() {
+            _index = _index == 5 ? 1 : _index + 1;
+          });
+        });
       }
     } else {
       _animationController.animateTo(
@@ -59,6 +71,8 @@ class _SwipingCardsScreenState extends State<SwipingCardsScreen>
     super.dispose();
     _animationController.dispose();
   }
+
+  int _index = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -82,16 +96,10 @@ class _SwipingCardsScreenState extends State<SwipingCardsScreen>
                 Positioned(
                   top: 100,
                   child: Transform.scale(
-                    scale: scale,
-                    child: Material(
-                      elevation: 10,
-                      color: Colors.green.shade100,
-                      child: SizedBox(
-                        width: size.width * 0.8,
-                        height: size.height * 0.5,
-                      ),
-                    ),
-                  ),
+                      scale: scale,
+                      child: Card(
+                        index: _index == 5 ? 1 : _index + 1,
+                      )),
                 ),
                 Positioned(
                   top: 100,
@@ -102,14 +110,7 @@ class _SwipingCardsScreenState extends State<SwipingCardsScreen>
                       offset: Offset(_animationController.value, 0),
                       child: Transform.rotate(
                         angle: (angle * pi) / 180,
-                        child: Material(
-                          elevation: 10,
-                          color: Colors.red.shade100,
-                          child: SizedBox(
-                            width: size.width * 0.8,
-                            height: size.height * 0.5,
-                          ),
-                        ),
+                        child: Card(index: _index),
                       ),
                     ),
                   ),
@@ -118,5 +119,28 @@ class _SwipingCardsScreenState extends State<SwipingCardsScreen>
             );
           },
         ));
+  }
+}
+
+class Card extends StatelessWidget {
+  final int index;
+  const Card({super.key, required this.index});
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    return Material(
+      elevation: 10,
+      borderRadius: BorderRadius.circular(10),
+      clipBehavior: Clip.hardEdge,
+      child: SizedBox(
+        width: size.width * 0.8,
+        height: size.height * 0.5,
+        child: Image.asset(
+          "assets/cover/$index.jpg",
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
   }
 }
