@@ -12,7 +12,8 @@ class MusicPlayerScreen extends StatefulWidget {
   State<MusicPlayerScreen> createState() => _MusicPlayerScreenState();
 }
 
-class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
+class _MusicPlayerScreenState extends State<MusicPlayerScreen>
+    with SingleTickerProviderStateMixin {
   final PageController _pageController = PageController(
     viewportFraction: 0.8,
   );
@@ -29,13 +30,17 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
 
   void _onTap(int index) {
     Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MusicPlayerDetailScreen(
-          index: index,
-        ),
-      ),
-    );
+        context,
+        PageRouteBuilder(
+            transitionDuration: const Duration(
+              milliseconds: 300,
+            ),
+            pageBuilder: (context, animation, secondaryAnimation) {
+              return FadeTransition(
+                opacity: animation,
+                child: MusicPlayerDetailScreen(index: index),
+              );
+            }));
   }
 
   @override
